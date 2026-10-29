@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
+from app.dependencies import enforce_rate_limit
 from app.main import app
 
 
@@ -30,12 +31,17 @@ def db_session() -> Generator[Session, None, None]:
 
 @pytest.fixture
 def client(db_session: Session) -> Generator[TestClient, None, None]:
-    """Provide a TestClient whose DB dependency uses the test session."""
+    """Provide a TestClient with the DB and rate-limit dependencies overridden.
+
+    The rate limiter is disabled by default so unrelated tests never touch Redis.
+    Tests that target rate limiting mock the service directly instead.
+    """
 
     def override_get_db() -> Generator[Session, None, None]:
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[enforce_rate_limit] = lambda: None
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
