@@ -1,4 +1,6 @@
-﻿from fastapi.testclient import TestClient
+﻿from unittest.mock import patch
+
+from fastapi.testclient import TestClient
 
 
 def _create_link(client: TestClient, url: str = "https://example.com") -> str:
@@ -9,7 +11,8 @@ def _create_link(client: TestClient, url: str = "https://example.com") -> str:
 
 def test_redirect_returns_307_with_location(client: TestClient) -> None:
     short_code = _create_link(client, "https://example.com")
-    response = client.get(f"/{short_code}", follow_redirects=False)
+    with patch("app.api.redirect.register_click"):
+        response = client.get(f"/{short_code}", follow_redirects=False)
     assert response.status_code == 307
     assert response.headers["location"] == "https://example.com/"
 
@@ -21,5 +24,25 @@ def test_redirect_unknown_code_returns_404(client: TestClient) -> None:
 
 def test_redirect_is_case_sensitive(client: TestClient) -> None:
     short_code = _create_link(client)
-    response = client.get(f"/{short_code.swapcase()}", follow_redirects=False)
+    with patch("app.api.redirect.register_click"):
+        response = client.get(f"/{short_code.swapcase()}", follow_redirects=False)
     assert response.status_code == 404  # base62 codes are case-sensitive
+
+
+def test_redirect_queues_click_task(client: TestClient) -> None:
+    short_code = _create_link(client)
+    with patch("app.api.redirect.register_click") as mock_task:
+        client.get(
+            f"/{short_code}",
+            follow_redirects=False,
+            headers={"user-agent": "curl/8.0.1"},
+        )
+    mock_task.delay.assert_called_once()
+    args = mock_task.delay.call_args.args
+    assert args[1] == "bot"  # curl UA classified as bot
+
+
+def test_redirect_does_not_queue_for_unknown_code(client: TestClient) -> None:
+    with patch("app.api.redirect.register_click") as mock_task:
+        client.get("/doesnotexist", follow_redirects=False)
+    mock_task.delay.assert_not_called()
