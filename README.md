@@ -181,3 +181,24 @@ natural next steps:
 - **Authentication** so links are owned by users, with per-user analytics.
 - **Custom short codes** allowing users to pick their own alias.
 - **Structured logging and metrics** for observability in production.
+
+
+## Project structure
+
+```
+app/
+  api/           # HTTP routers (links, redirect, stats, health)
+  models/        # SQLAlchemy models (Link, ClickEvent)
+  schemas/       # Pydantic request/response models
+  services/      # business logic (shortener, device, stats, rate_limit)
+  workers/       # Celery app and tasks
+  cache.py       # Redis client
+  config.py      # settings
+  database.py    # SQLAlchemy engine and session
+  dependencies.py
+  main.py        # app factory
+migrations/      # Alembic migrations
+tests/           # pytest suite
+docker-compose.yml
+Dockerfile
+```
