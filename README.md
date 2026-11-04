@@ -151,3 +151,18 @@ curl -X POST http://localhost:8000/links \
 # Follow the short link (records a click asynchronously)
 curl -i http://localhost:8000/Ab3xK9z
 ```
+
+## Running tests
+
+The test suite uses an in-memory SQLite database and mocks Redis and Celery, so
+it runs without any services up:
+
+```bash
+uv run pytest
+```
+
+Linting:
+
+```bash
+uv run ruff check .
+```
