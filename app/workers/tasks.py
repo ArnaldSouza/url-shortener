@@ -1,5 +1,5 @@
-﻿from contextlib import contextmanager
-from collections.abc import Generator
+﻿from collections.abc import Generator
+from contextlib import contextmanager
 
 from sqlalchemy import update
 from sqlalchemy.orm import Session

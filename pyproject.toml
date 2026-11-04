@@ -18,9 +18,15 @@ dependencies = [
 dev = [
     "httpx>=0.28.1",
     "pytest>=9.1.1",
+    "ruff>=0.17.3",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff.lint]
+# B008: FastAPI's Depends() in argument defaults is the documented pattern,
+# not the anti-pattern the rule targets.
+extend-ignore = ["B008"]
