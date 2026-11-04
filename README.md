@@ -76,3 +76,16 @@ the task waits in Redis until it can be processed.
 - **No SSRF by design.** The API never fetches the submitted URL. It only
   validates and stores the string, so a malicious target URL cannot be used to
   make the server issue requests.
+
+## Tech stack
+
+- **FastAPI** - web framework and request validation
+- **PostgreSQL** - persistent storage for links and click events
+- **Redis** - Celery broker, response cache, and rate-limit counter
+- **Celery** - asynchronous task queue for click processing
+- **SQLAlchemy 2.0** - ORM and query layer
+- **Alembic** - database migrations
+- **Docker Compose** - local orchestration of all services
+- **pytest** - test suite
+- **uv** - dependency management
+- **ruff** - linting
