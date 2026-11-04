@@ -89,3 +89,42 @@ the task waits in Redis until it can be processed.
 - **pytest** - test suite
 - **uv** - dependency management
 - **ruff** - linting
+
+## Getting started
+
+### Prerequisites
+
+- Docker and Docker Compose
+
+### Run with Docker Compose
+
+Start all services (API, Celery worker, PostgreSQL, Redis):
+
+```bash
+docker compose up -d --build
+```
+
+Apply the database migrations (the schema is managed by Alembic, so this step
+creates the tables on a fresh database):
+
+```bash
+docker compose exec api alembic upgrade head
+```
+
+The API is now available at `http://localhost:8000`. Interactive API docs
+(Swagger UI) are at `http://localhost:8000/docs`.
+
+### Local development
+
+Dependencies are managed with [uv](https://docs.astral.sh/uv/). To run the
+app outside Docker, start only the backing services and run the API and worker
+locally:
+
+```bash
+docker compose up -d db redis
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
+uv run celery -A app.workers.celery_app worker --loglevel=info --pool=solo
+```
+
+The `--pool=solo` flag is required for the Celery worker on Windows.
