@@ -128,3 +128,26 @@ uv run celery -A app.workers.celery_app worker --loglevel=info --pool=solo
 ```
 
 The `--pool=solo` flag is required for the Celery worker on Windows.
+
+## API endpoints
+
+| Method | Path                  | Description                                      |
+|--------|-----------------------|--------------------------------------------------|
+| POST   | `/links`              | Create a short link. Rate limited per IP.        |
+| GET    | `/{short_code}`       | Redirect to the target URL and record the click. |
+| GET    | `/stats/most-clicked` | Return the most-clicked link (cached).           |
+| GET    | `/health`             | Liveness check.                                  |
+
+### Example
+
+```bash
+# Create a short link
+curl -X POST http://localhost:8000/links \
+  -H "Content-Type: application/json" \
+  -d '{"target_url": "https://example.com"}'
+
+# Response: {"short_code": "Ab3xK9z", "target_url": "...", "click_count": 0, ...}
+
+# Follow the short link (records a click asynchronously)
+curl -i http://localhost:8000/Ab3xK9z
+```
