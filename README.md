@@ -166,3 +166,18 @@ Linting:
 ```bash
 uv run ruff check .
 ```
+
+## Possible improvements
+
+These were deliberately left out to keep the project focused, but would be the
+natural next steps:
+
+- **Sliding-window rate limiting** to remove the burst allowed at the boundary
+  of the current fixed window.
+- **Automatic migrations on startup** via an entrypoint script, so a fresh
+  deployment does not require a manual `alembic upgrade head`.
+- **Periodic analytics aggregation** with Celery Beat (e.g. hourly click
+  rollups per link) instead of only a running total.
+- **Authentication** so links are owned by users, with per-user analytics.
+- **Custom short codes** allowing users to pick their own alias.
+- **Structured logging and metrics** for observability in production.
